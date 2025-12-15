@@ -8,6 +8,17 @@ const setToken = newToken => {
 }
 
 
+
+const login = async (credentials) => {
+    const response = await axios.post(`${baseUrl}/api/auth/login`, credentials);
+    return response;
+};
+
+const register = async (userData) => {
+    const response = await axios.post(`${baseUrl}/api/auth/register`, userData);
+    return response.data;
+}
+
 const getBookByISBN = (isbn) => {
     const request = axios.get(`${baseUrl}/api/books/search/isbn`, {
         params: {
@@ -47,6 +58,8 @@ const saveSelectedBook = (Book) => {
 }
 
 export default {
+    login,
+    register,
     getBookByISBN,
     getBookByTitle,
     getBookByAuthor,
