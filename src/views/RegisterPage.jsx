@@ -66,7 +66,7 @@ function RegisterPage () {
                                     onChange={(e) => setEmail(e.target.value)}
                                     sx={{ mb: 2}} />
     
-                                    <TextField 
+                                <TextField 
                                     placeholder='Enter password'
                                     fullWidth
                                     required
@@ -75,7 +75,7 @@ function RegisterPage () {
                                     onChange={(e) => setPassword(e.target.value)}
                                     sx={{ mb: 2}} />
     
-                                    <TextField 
+                                <TextField 
                                     placeholder=' Reenter password'
                                     fullWidth
                                     required
@@ -98,6 +98,9 @@ function RegisterPage () {
                                         }
                                     }}
                                     sx={{ mb: 2}} />
+                                <Button type='submit' variant='contained' fullWidth sx={{ mt: 1 }}>
+                                    Sign up
+                                </Button>
     
                             </Box>
                         </Paper>
@@ -118,7 +121,6 @@ function RegisterPage () {
                 </Snackbar>
             </>
         )
-
 
 }
 

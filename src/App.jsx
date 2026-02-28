@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import CustomAppBar from './components/appBar';
 import BookSearch from './views/BookSearch'
 import MyBooks from './views/MyBooks';
@@ -34,6 +34,15 @@ function PublicViews() {
   return <Outlet />
 }
 
+function ProtectedRoute({ children }) {
+  const isAuthenticated = !!localStorage.getItem('jwtToken');
+
+  if(!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 
 
@@ -53,11 +62,11 @@ function App() {
 
       <Routes>
         <Route element={<ProtectedViews />} >
-          <Route path='/MyBooks' element={<MyBooks />} />
-          <Route path='/BookSearch' element={<BookSearch />} />
-          <Route path='/Loans' element={<Loans />} />
-          <Route path='/user' element={<UserProfile />} />
-          <Route path='/MyLibrary' element={<MyLibrary />} />
+          <Route path='/MyBooks' element={<ProtectedRoute><MyBooks /></ProtectedRoute>} />
+          <Route path='/BookSearch' element={<ProtectedRoute><BookSearch /></ProtectedRoute>} />
+          <Route path='/Loans' element={<ProtectedRoute><Loans /></ProtectedRoute>} />
+          <Route path='/user' element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          <Route path='/MyLibrary' element={<ProtectedRoute><MyLibrary /></ProtectedRoute>} />
         </Route>
       </Routes>
     </Router>

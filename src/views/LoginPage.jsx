@@ -13,44 +13,100 @@ function LoginPage () {
     const [password, setPassword] = useState('');
     const [openSnackBar, setOpenSnackBar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [loading, setLoading] = useState(false);
+
 
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if(!email.includes('@')){
+
+        if(!email || !email.includes('@')){
             setSnackbarMessage("Please enter a valid email address");
             setOpenSnackBar(true);
             return;
         }
         
+        if(!password){
+            setSnackbarMessage("Please enter your password");
+            setOpenSnackBar(true);
+            return;
+        }
+
+        setLoading(true);
+
         try {
-            const response = await libraryServices.login('http://localhost:8080/api/auth/login', {
-                email,
-                password
+            // const response = await libraryServices.login('http://localhost:8080/api/auth/login', {
+            //     email,
+            //     password
+            // });
+
+            const response = await libraryServices.login({
+                email: email.trim(),
+                password: password
             });
 
-            const { token } = response.data;
-            localStorage.setItem('jwtToken', token);
-            libraryServices.setToken(token)
-
-            console.log("Loing successful")
-
-            setTimeout(() => {
-                navigate('/MyBooks');
-            }, 1000);
+            console.log("Login successful, response: ", response.data);
 
 
-        } catch (e) {
-            setSnackbarMessage("Invalid credentials");
+            const { token, message } = response.data;
+
+            if(token){
+                localStorage.setItem('jwtToken', token);
+                libraryServices.setToken(token);
+
+                setSnackbarMessage(message || "Login sucessful!");
+                setOpenSnackBar(true);
+
+                // console.log("Loing successful")
+
+                setTimeout(() => {
+                    navigate('/MyBooks');
+                }, 1000);
+            } else {
+                throw new Error("No token received");
+            }  
+
+
+        } 
+        // catch (e) {
+        //     setSnackbarMessage("Invalid credentials");
+        //     setOpenSnackBar(true);
+        //     // setError("Invalid credentials");
+        //     console.error("Loging error: ", e)
+        // }
+        catch (error){
+            console.error("Login error detail:", error);
+
+            let errorMessage = "Login Failed";
+
+            if(error.response){
+                const {status, data} = error.response;
+
+                if(status === 401){
+                    errorMessage = "Invalid email or password";
+                } else if (status === 400) {
+                    errorMessage = "Bad request. Please check your input";
+                } else if (status === 500) {
+                    errorMessage = "Server error. Please try again later";
+                } else if (data & data.message) {
+                    errorMessage = data.message;
+                }
+            } else if (error.request){
+                errorMessage = "Cannot connect to server. Check if backend is running";
+            } else {
+                errorMessage = "Error setting up request";
+            }
+
+            setSnackbarMessage(errorMessage);
             setOpenSnackBar(true);
-            // setError("Invalid credentials");
-            console.error("Loging error: ", e)
+        } finally {
+            setLoading(false)
         }
 
         
         console.log("Logging in", {email, password})
-    }
+    };
 
     const handleCloseSnackbar = () => {
         setOpenSnackBar(false)
@@ -95,7 +151,7 @@ function LoginPage () {
                                 onChange={(e) => setPassword(e.target.value)}
                                 sx={{ mb: 2}} />
                             <Button type='submit' variant='contained' fullWidth sx={{ mt: 1 }}>
-                                Sign in
+                                Log in
                             </Button>
                         </Box>
                         <Grid container justifyContent='space-between' sx={{ mt: 1}}>

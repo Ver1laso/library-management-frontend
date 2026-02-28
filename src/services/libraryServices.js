@@ -2,21 +2,53 @@ import { Book } from '@mui/icons-material'
 import axios from 'axios'
 const baseUrl = 'http://localhost:8080'
 
+// Global axios config
+const api = axios.create({
+    baseURL: baseUrl,
+    timeout: 10000,
+    headers: {
+        'Content-Type' : 'application/json',
+    },
+});
+
 let token = null
 const setToken = newToken => {
     token = `Bearer ${newToken}`
+
+    api.defaults.headers.common['Authorization'] = token;
 }
 
 
 
 const login = async (credentials) => {
-    const response = await axios.post(`${baseUrl}/api/auth/login`, credentials);
-    return response;
+    console.log("Sending login request to: ", `${baseUrl}/api/auth/login`);
+    console.log("Credentials:", credentials)
+
+    try{
+        const response = await axios.post(`${baseUrl}/api/auth/login`, credentials);
+        console.log("Login response: ", response.data);
+        return response;
+    } catch (error){
+        console.error("Loging error details", {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+            condig: error.condig
+        });
+        throw error;
+    }
 };
 
 const register = async (userData) => {
-    const response = await axios.post(`${baseUrl}/api/auth/register`, userData);
-    return response.data;
+
+    try{
+        const response = await axios.post(`${baseUrl}/api/auth/signup`, userData);
+        return response.data;
+    } catch (error) {
+        console.error("Register error: ", error);
+        throw error;
+    }
+    
 }
 
 const getBookByISBN = (isbn) => {
